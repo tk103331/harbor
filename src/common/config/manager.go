@@ -207,9 +207,22 @@ func (c *CfgManager) Set(key string, value interface{}) {
 
 // GetDatabaseCfg - Get database configurations
 func (c *CfgManager) GetDatabaseCfg() *models.Database {
-	return &models.Database{
-		Type: c.Get(common.DatabaseType).GetString(),
-		PostGreSQL: &models.PostGreSQL{
+
+	database := &models.Database{}
+	database.Type = c.Get(common.DatabaseType).GetString()
+
+	switch database.Type {
+	case "", "mysql":
+		mysql := &models.MySQL{
+			Host:     c.Get(common.MySQLHOST).GetString(),
+			Port:     c.Get(common.MySQLPort).GetInt(),
+			Username: c.Get(common.MySQLUsername).GetString(),
+			Password: c.Get(common.MySQLPassword).GetString(),
+			Database: c.Get(common.MySQLDatabase).GetString(),
+		}
+		database.MySQL = mysql
+	case "postgresql":
+		postgresql := &models.PostGreSQL{
 			Host:         c.Get(common.PostGreSQLHOST).GetString(),
 			Port:         c.Get(common.PostGreSQLPort).GetInt(),
 			Username:     c.Get(common.PostGreSQLUsername).GetString(),
@@ -218,8 +231,10 @@ func (c *CfgManager) GetDatabaseCfg() *models.Database {
 			SSLMode:      c.Get(common.PostGreSQLSSLMode).GetString(),
 			MaxIdleConns: c.Get(common.PostGreSQLMaxIdleConns).GetInt(),
 			MaxOpenConns: c.Get(common.PostGreSQLMaxOpenConns).GetInt(),
-		},
+		}
+		database.PostGreSQL = postgresql
 	}
+	return database
 }
 
 // UpdateConfig - Update config store with a specified configuration and also save updated configure.

@@ -120,7 +120,15 @@ func CheckSchemaVersion() error {
 func getDatabase(database *models.Database) (db Database, err error) {
 
 	switch database.Type {
-	case "", "postgresql":
+	case "", "mysql":
+		db = NewMySQL(
+			database.MySQL.Host,
+			strconv.Itoa(database.MySQL.Port),
+			database.MySQL.Username,
+			database.MySQL.Password,
+			database.MySQL.Database,
+		)
+	case "postgresql":
 		db = NewPGSQL(
 			database.PostGreSQL.Host,
 			strconv.Itoa(database.PostGreSQL.Port),
