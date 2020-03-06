@@ -6,6 +6,7 @@ WORKDIR /build_dir
 ARG npm_registry=https://registry.npmjs.org
 ENV NPM_CONFIG_REGISTRY=${npm_registry}
 
+COPY make/photon/portal/sources.list /etc/apt/sources.list
 COPY src/portal/package.json /build_dir
 COPY src/portal/package-lock.json /build_dir
 COPY ./api/harbor/swagger.yaml /build_dir
