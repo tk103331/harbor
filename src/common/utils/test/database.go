@@ -27,6 +27,63 @@ import (
 
 // InitDatabaseFromEnv is used to initialize database for testing
 func InitDatabaseFromEnv() {
+
+	dbType := os.Getenv("DATABASE_TYPE")
+
+	switch dbType {
+	case "", "mysql":
+		initMySQLFromEnv()
+	case "postgresql":
+		initPostgreSQLFromEnv()
+	}
+}
+
+func initMySQLFromEnv() {
+	dbHost := os.Getenv("MYSQL_HOST")
+	if len(dbHost) == 0 {
+		log.Fatalf("environment variable MYSQL_HOST is not set")
+	}
+	dbUser := os.Getenv("MYSQL_USR")
+	if len(dbUser) == 0 {
+		log.Fatalf("environment variable MYSQL_USR is not set")
+	}
+	dbPortStr := os.Getenv("MYSQL_PORT")
+	if len(dbPortStr) == 0 {
+		log.Fatalf("environment variable MYSQL_PORT is not set")
+	}
+	dbPort, err := strconv.Atoi(dbPortStr)
+	if err != nil {
+		log.Fatalf("invalid MYSQL_PORT: %v", err)
+	}
+
+	dbPassword := os.Getenv("MYSQL_PWD")
+	dbDatabase := os.Getenv("MYSQL_DATABASE")
+	adminPwd := os.Getenv("HARBOR_ADMIN_PASSWD")
+	if len(dbDatabase) == 0 {
+		log.Fatalf("environment variable MYSQL_DATABASE is not set")
+	}
+
+	database := &models.Database{
+		Type: "postgresql",
+		PostGreSQL: &models.PostGreSQL{
+			Host:     dbHost,
+			Port:     dbPort,
+			Username: dbUser,
+			Password: dbPassword,
+			Database: dbDatabase,
+		},
+	}
+
+	log.Infof("MYSQL_HOST: %s, MYSQL_USR: %s, MYSQL_PORT: %d, MYSQL_PWD: %s\n", dbHost, dbUser, dbPort, dbPassword)
+
+	if err := dao.InitAndUpgradeDatabase(database); err != nil {
+		log.Fatalf("failed to init and upgrade database : %v", err)
+	}
+	if err := updateUserInitialPassword(1, adminPwd); err != nil {
+		log.Fatalf("failed to init password for admin: %v", err)
+	}
+}
+func initPostgreSQLFromEnv() {
 	dbHost := os.Getenv("POSTGRESQL_HOST")
 	if len(dbHost) == 0 {
 		log.Fatalf("environment variable POSTGRESQL_HOST is not set")
@@ -70,7 +127,6 @@ func InitDatabaseFromEnv() {
 	if err := updateUserInitialPassword(1, adminPwd); err != nil {
 		log.Fatalf("failed to init password for admin: %v", err)
 	}
-
 }
 
 func updateUserInitialPassword(userID int, password string) error {
