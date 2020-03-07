@@ -81,7 +81,8 @@ CLAIRFLAG=false
 HTTPPROXY=
 BUILDBIN=false
 MIGRATORFLAG=false
-NPM_REGISTRY=https://registry.npmjs.org
+#NPM_REGISTRY=https://registry.npmjs.org
+NPM_REGISTRY=https://registry.npm.taobao.org
 # enable/disable chart repo supporting
 CHARTFLAG=false
 
