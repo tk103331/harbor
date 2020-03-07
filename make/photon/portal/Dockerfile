@@ -15,7 +15,7 @@ RUN apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3B4FE6ACC0B21F32
 RUN apt-get update \
     && apt-get install -y --no-install-recommends python-yaml=3.12-1 \
     && python -c 'import sys, yaml, json; y=yaml.load(sys.stdin.read()); print json.dumps(y)' < swagger.yaml > swagger.json \
-    && npm install
+    && export NG_CLI_ANALYTICS=no && npm install
 
 COPY ./LICENSE /build_dir
 COPY src/portal /build_dir
