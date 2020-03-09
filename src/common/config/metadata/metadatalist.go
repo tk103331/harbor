@@ -77,7 +77,7 @@ var (
 
 		{Name: common.CoreURL, Scope: SystemScope, Group: BasicGroup, EnvKey: "CORE_URL", DefaultValue: "http://core:8080", ItemType: &StringType{}, Editable: false},
 		{Name: common.CoreLocalURL, Scope: SystemScope, Group: BasicGroup, EnvKey: "CORE_LOCAL_URL", DefaultValue: "http://127.0.0.1:8080", ItemType: &StringType{}, Editable: false},
-		{Name: common.DatabaseType, Scope: SystemScope, Group: BasicGroup, EnvKey: "DATABASE_TYPE", DefaultValue: "postgresql", ItemType: &StringType{}, Editable: false},
+		{Name: common.DatabaseType, Scope: SystemScope, Group: BasicGroup, EnvKey: "DATABASE_TYPE", DefaultValue: "mysql", ItemType: &StringType{}, Editable: false},
 
 		{Name: common.EmailFrom, Scope: UserScope, Group: EmailGroup, EnvKey: "EMAIL_FROM", DefaultValue: "admin <sample_admin@mydomain.com>", ItemType: &StringType{}, Editable: false},
 		{Name: common.EmailHost, Scope: UserScope, Group: EmailGroup, EnvKey: "EMAIL_HOST", DefaultValue: "smtp.mydomain.com", ItemType: &StringType{}, Editable: false},
@@ -110,6 +110,12 @@ var (
 		{Name: common.MaxJobWorkers, Scope: SystemScope, Group: BasicGroup, EnvKey: "MAX_JOB_WORKERS", DefaultValue: "10", ItemType: &IntType{}, Editable: false},
 		{Name: common.NotaryURL, Scope: SystemScope, Group: BasicGroup, EnvKey: "NOTARY_URL", DefaultValue: "http://notary-server:4443", ItemType: &StringType{}, Editable: false},
 		{Name: common.ScanAllPolicy, Scope: UserScope, Group: BasicGroup, EnvKey: "", DefaultValue: "", ItemType: &MapType{}, Editable: false},
+
+		{Name: common.MySQLHOST, Scope: SystemScope, Group: DatabaseGroup, EnvKey: "MYSQL_HOST", DefaultValue: "mysql", ItemType: &StringType{}, Editable: false},
+		{Name: common.MySQLPort, Scope: SystemScope, Group: DatabaseGroup, EnvKey: "MYSQL_PORT", DefaultValue: "3306", ItemType: &PortType{}, Editable: false},
+		{Name: common.MySQLDatabase, Scope: SystemScope, Group: DatabaseGroup, EnvKey: "MYSQL_DATABASE", DefaultValue: "registry", ItemType: &StringType{}, Editable: false},
+		{Name: common.MySQLUsername, Scope: SystemScope, Group: DatabaseGroup, EnvKey: "MYSQL_USERNAME", DefaultValue: "root", ItemType: &StringType{}, Editable: false},
+		{Name: common.MySQLPassword, Scope: SystemScope, Group: DatabaseGroup, EnvKey: "MYSQL_PASSWORD", DefaultValue: "root123", ItemType: &PasswordType{}, Editable: false},
 
 		{Name: common.PostGreSQLDatabase, Scope: SystemScope, Group: DatabaseGroup, EnvKey: "POSTGRESQL_DATABASE", DefaultValue: "registry", ItemType: &StringType{}, Editable: false},
 		{Name: common.PostGreSQLHOST, Scope: SystemScope, Group: DatabaseGroup, EnvKey: "POSTGRESQL_HOST", DefaultValue: "postgresql", ItemType: &StringType{}, Editable: false},

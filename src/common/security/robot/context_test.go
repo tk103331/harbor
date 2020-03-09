@@ -40,6 +40,68 @@ var (
 )
 
 func TestMain(m *testing.M) {
+	dbType := os.Getenv("DATABASE_TYPE")
+
+	switch dbType {
+	case "", "mysql":
+		initMySQLDatabase()
+	case "postgresql":
+		initPostgreSQLDatabase()
+	}
+
+	// add project
+	id, err := dao.AddProject(*private)
+	if err != nil {
+		log.Fatalf("failed to add project: %v", err)
+	}
+	private.ProjectID = id
+	defer dao.DeleteProject(id)
+
+	os.Exit(m.Run())
+}
+
+func initMySQLDatabase() {
+	dbHost := os.Getenv("MYSQL_HOST")
+	if len(dbHost) == 0 {
+		log.Fatalf("environment variable MYSQL_HOST is not set")
+	}
+	dbUser := os.Getenv("MYSQL_USR")
+	if len(dbUser) == 0 {
+		log.Fatalf("environment variable MYSQL_USR is not set")
+	}
+	dbPortStr := os.Getenv("MYSQL_PORT")
+	if len(dbPortStr) == 0 {
+		log.Fatalf("environment variable MYSQL_PORT is not set")
+	}
+	dbPort, err := strconv.Atoi(dbPortStr)
+	if err != nil {
+		log.Fatalf("invalid MYSQL_PORT: %v", err)
+	}
+
+	dbPassword := os.Getenv("MYSQL_PWD")
+	dbDatabase := os.Getenv("MYSQL_DATABASE")
+	if len(dbDatabase) == 0 {
+		log.Fatalf("environment variable MYSQL_DATABASE is not set")
+	}
+
+	database := &models.Database{
+		Type: "mysql",
+		PostGreSQL: &models.PostGreSQL{
+			Host:     dbHost,
+			Port:     dbPort,
+			Username: dbUser,
+			Password: dbPassword,
+			Database: dbDatabase,
+		},
+	}
+
+	log.Infof("MYSQL_HOST: %s, MYSQL_USR: %s, MYSQL_PORT: %d, MYSQL_PWD: %s\n", dbHost, dbUser, dbPort, dbPassword)
+
+	if err := dao.InitDatabase(database); err != nil {
+		log.Fatalf("failed to initialize database: %v", err)
+	}
+}
+func initPostgreSQLDatabase() {
 	dbHost := os.Getenv("POSTGRESQL_HOST")
 	if len(dbHost) == 0 {
 		log.Fatalf("environment variable POSTGRES_HOST is not set")
@@ -79,16 +141,6 @@ func TestMain(m *testing.M) {
 	if err := dao.InitDatabase(database); err != nil {
 		log.Fatalf("failed to initialize database: %v", err)
 	}
-
-	// add project
-	id, err := dao.AddProject(*private)
-	if err != nil {
-		log.Fatalf("failed to add project: %v", err)
-	}
-	private.ProjectID = id
-	defer dao.DeleteProject(id)
-
-	os.Exit(m.Run())
 }
 
 func TestIsAuthenticated(t *testing.T) {
