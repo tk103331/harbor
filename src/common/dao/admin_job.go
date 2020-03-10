@@ -34,7 +34,7 @@ func AddAdminJob(job *models.AdminJob) (int64, error) {
 	var err error
 	now := time.Now()
 
-	if config.DatabaseType == "postgresql" {
+	if DatabaseType == "postgresql" {
 		sql := "insert into admin_job (job_name, job_kind, status, job_uuid, cron_str, creation_time, update_time) values (?, ?, ?, ?, ?, ?, ?) RETURNING id"
 		err = o.Raw(sql, job.Name, job.Kind, job.Status, job.UUID, job.Cron, now, now).QueryRow(&id)
 	} else {

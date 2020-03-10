@@ -113,7 +113,7 @@ func AddProjectMember(member models.Member) (int, error) {
 	}
 
 	var pmid int
-	if config.DatabaseType == "postgresql" {
+	if dao.DatabaseType == "postgresql" {
 		sql := "insert into project_member (project_id, entity_id , role, entity_type) values (?, ?, ?, ?) RETURNING id"
 		err = o.Raw(sql, member.ProjectID, member.EntityID, member.Role, member.EntityType).QueryRow(&pmid)
 	} else {

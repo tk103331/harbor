@@ -33,6 +33,8 @@ const (
 	ClairDBAlias = "clair-db"
 )
 
+var DatabaseType = ""
+
 // ErrDupRows is returned by DAO when inserting failed with error "duplicate key value violates unique constraint"
 var ErrDupRows = errors.New("sql: duplicate row in DB")
 
@@ -76,6 +78,7 @@ func UpgradeSchema(database *models.Database) error {
 
 // InitDatabase registers the database
 func InitDatabase(database *models.Database) error {
+	DatabaseType = database.Type
 	db, err := getDatabase(database)
 	if err != nil {
 		return err

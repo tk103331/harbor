@@ -16,7 +16,6 @@ package dao
 
 import (
 	"errors"
-	"github.com/goharbor/harbor/src/core/config"
 	"time"
 
 	"github.com/goharbor/harbor/src/common/models"
@@ -30,7 +29,7 @@ func Register(user models.User) (int64, error) {
 	now := time.Now()
 	salt := utils.GenerateRandomString()
 
-	if config.DatabaseType == "postgresql" {
+	if DatabaseType == "postgresql" {
 		sql := `insert into harbor_user
 				(username, password, password_version, realname, email, comment, salt, sysadmin_flag, creation_time, update_time)
 				 values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING user_id`

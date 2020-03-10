@@ -61,7 +61,6 @@ var (
 	// defined as a var for testing.
 	defaultCACertPath = "/etc/core/ca/ca.crt"
 	cfgMgr            *comcfg.CfgManager
-	DatabaseType      string
 )
 
 // Init configurations
@@ -70,8 +69,6 @@ func Init() error {
 	initKeyProvider()
 
 	cfgMgr = comcfg.NewDBCfgManager()
-
-	DatabaseType = cfgMgr.Get(common.DatabaseType).GetString()
 
 	log.Info("init secret store")
 	// init secret store

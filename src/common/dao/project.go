@@ -15,12 +15,10 @@
 package dao
 
 import (
+	"fmt"
 	"github.com/goharbor/harbor/src/common"
 	"github.com/goharbor/harbor/src/common/models"
 	"github.com/goharbor/harbor/src/common/utils/log"
-	"github.com/goharbor/harbor/src/core/config"
-
-	"fmt"
 	"time"
 )
 
@@ -31,7 +29,7 @@ func AddProject(project models.Project) (int64, error) {
 	var projectID int64
 	var err error
 	now := time.Now()
-	if config.DatabaseType == "postgresql" {
+	if DatabaseType == "postgresql" {
 		sql := "insert into project (owner_id, name, creation_time, update_time, deleted) values (?, ?, ?, ?, ?) RETURNING project_id"
 		err = o.Raw(sql, project.OwnerID, project.Name, now, now, project.Deleted).QueryRow(&projectID)
 	} else {
@@ -74,7 +72,7 @@ func addProjectMember(member models.Member) (int, error) {
 
 	var pmID int
 	var err error
-	if config.DatabaseType == "postgresql" {
+	if DatabaseType == "postgresql" {
 		sql := "insert into project_member (project_id, entity_id , role, entity_type) values (?, ?, ?, ?) RETURNING id"
 		err = o.Raw(sql, member.ProjectID, member.EntityID, member.Role, member.EntityType).QueryRow(&pmID)
 	} else {
