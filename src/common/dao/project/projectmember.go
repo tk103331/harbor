@@ -16,6 +16,7 @@ package project
 
 import (
 	"fmt"
+	"github.com/goharbor/harbor/src/core/config"
 
 	"github.com/goharbor/harbor/src/common/dao"
 	"github.com/goharbor/harbor/src/common/models"
@@ -112,8 +113,14 @@ func AddProjectMember(member models.Member) (int, error) {
 	}
 
 	var pmid int
-	sql := "insert into project_member (project_id, entity_id , role, entity_type) values (?, ?, ?, ?) RETURNING id"
-	err = o.Raw(sql, member.ProjectID, member.EntityID, member.Role, member.EntityType).QueryRow(&pmid)
+	if config.DatabaseType == "postgresql" {
+		sql := "insert into project_member (project_id, entity_id , role, entity_type) values (?, ?, ?, ?) RETURNING id"
+		err = o.Raw(sql, member.ProjectID, member.EntityID, member.Role, member.EntityType).QueryRow(&pmid)
+	} else {
+		var id int64
+		id, err = o.Insert(&member)
+		pmid = int(id)
+	}
 	if err != nil {
 		return 0, err
 	}

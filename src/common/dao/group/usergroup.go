@@ -15,6 +15,7 @@
 package group
 
 import (
+	"github.com/goharbor/harbor/src/core/config"
 	"time"
 
 	"github.com/goharbor/harbor/src/common/utils"
@@ -39,11 +40,18 @@ func AddUserGroup(userGroup models.UserGroup) (int, error) {
 		return 0, ErrGroupNameDup
 	}
 	o := dao.GetOrmer()
-	sql := "insert into user_group (group_name, group_type, ldap_group_dn, creation_time, update_time) values (?, ?, ?, ?, ?) RETURNING id"
 	var id int
 	now := time.Now()
-
-	err = o.Raw(sql, userGroup.GroupName, userGroup.GroupType, utils.TrimLower(userGroup.LdapGroupDN), now, now).QueryRow(&id)
+	if config.DatabaseType == "postgresql" {
+		sql := "insert into user_group (group_name, group_type, ldap_group_dn, creation_time, update_time) values (?, ?, ?, ?, ?) RETURNING id"
+		err = o.Raw(sql, userGroup.GroupName, userGroup.GroupType, utils.TrimLower(userGroup.LdapGroupDN), now, now).QueryRow(&id)
+	} else {
+		var gid int64
+		userGroup.CreationTime = now
+		userGroup.UpdateTime = now
+		gid, err = o.Insert(&userGroup)
+		id = int(gid)
+	}
 	if err != nil {
 		return 0, err
 	}

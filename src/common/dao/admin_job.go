@@ -15,6 +15,7 @@
 package dao
 
 import (
+	"github.com/goharbor/harbor/src/core/config"
 	"time"
 
 	"github.com/astaxie/beego/orm"
@@ -28,10 +29,19 @@ func AddAdminJob(job *models.AdminJob) (int64, error) {
 	if len(job.Status) == 0 {
 		job.Status = models.JobPending
 	}
-	sql := "insert into admin_job (job_name, job_kind, status, job_uuid, cron_str, creation_time, update_time) values (?, ?, ?, ?, ?, ?, ?) RETURNING id"
+
 	var id int64
+	var err error
 	now := time.Now()
-	err := o.Raw(sql, job.Name, job.Kind, job.Status, job.UUID, job.Cron, now, now).QueryRow(&id)
+
+	if config.DatabaseType == "postgresql" {
+		sql := "insert into admin_job (job_name, job_kind, status, job_uuid, cron_str, creation_time, update_time) values (?, ?, ?, ?, ?, ?, ?) RETURNING id"
+		err = o.Raw(sql, job.Name, job.Kind, job.Status, job.UUID, job.Cron, now, now).QueryRow(&id)
+	} else {
+		job.CreationTime = now
+		job.UpdateTime = now
+		id, err = o.Insert(job)
+	}
 	if err != nil {
 		return 0, err
 	}

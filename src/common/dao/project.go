@@ -18,6 +18,7 @@ import (
 	"github.com/goharbor/harbor/src/common"
 	"github.com/goharbor/harbor/src/common/models"
 	"github.com/goharbor/harbor/src/common/utils/log"
+	"github.com/goharbor/harbor/src/core/config"
 
 	"fmt"
 	"time"
@@ -27,11 +28,17 @@ import (
 func AddProject(project models.Project) (int64, error) {
 	o := GetOrmer()
 
-	sql := "insert into project (owner_id, name, creation_time, update_time, deleted) values (?, ?, ?, ?, ?) RETURNING project_id"
 	var projectID int64
+	var err error
 	now := time.Now()
-
-	err := o.Raw(sql, project.OwnerID, project.Name, now, now, project.Deleted).QueryRow(&projectID)
+	if config.DatabaseType == "postgresql" {
+		sql := "insert into project (owner_id, name, creation_time, update_time, deleted) values (?, ?, ?, ?, ?) RETURNING project_id"
+		err = o.Raw(sql, project.OwnerID, project.Name, now, now, project.Deleted).QueryRow(&projectID)
+	} else {
+		project.CreationTime = now
+		project.UpdateTime = now
+		projectID, err = o.Insert(&project)
+	}
 	if err != nil {
 		return 0, err
 	}
@@ -66,8 +73,15 @@ func addProjectMember(member models.Member) (int, error) {
 	}
 
 	var pmID int
-	sql := "insert into project_member (project_id, entity_id , role, entity_type) values (?, ?, ?, ?) RETURNING id"
-	err := o.Raw(sql, member.ProjectID, member.EntityID, member.Role, member.EntityType).QueryRow(&pmID)
+	var err error
+	if config.DatabaseType == "postgresql" {
+		sql := "insert into project_member (project_id, entity_id , role, entity_type) values (?, ?, ?, ?) RETURNING id"
+		err = o.Raw(sql, member.ProjectID, member.EntityID, member.Role, member.EntityType).QueryRow(&pmID)
+	} else {
+		var id int64
+		id, err = o.Insert(&member)
+		pmID = int(id)
+	}
 	if err != nil {
 		return 0, err
 	}

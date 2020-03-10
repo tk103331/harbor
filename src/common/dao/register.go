@@ -16,6 +16,7 @@ package dao
 
 import (
 	"errors"
+	"github.com/goharbor/harbor/src/core/config"
 	"time"
 
 	"github.com/goharbor/harbor/src/common/models"
@@ -28,17 +29,23 @@ func Register(user models.User) (int64, error) {
 	o := GetOrmer()
 	now := time.Now()
 	salt := utils.GenerateRandomString()
-	sql := `insert into harbor_user
+
+	if config.DatabaseType == "postgresql" {
+		sql := `insert into harbor_user
 				(username, password, password_version, realname, email, comment, salt, sysadmin_flag, creation_time, update_time)
 				 values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING user_id`
-	var userID int64
-	err := o.Raw(sql, user.Username, utils.Encrypt(user.Password, salt, utils.SHA256), utils.SHA256, user.Realname, user.Email,
-		user.Comment, salt, user.HasAdminRole, now, now).QueryRow(&userID)
-	if err != nil {
-		return 0, err
+		var userID int64
+		err := o.Raw(sql, user.Username, utils.Encrypt(user.Password, salt, utils.SHA256), utils.SHA256, user.Realname, user.Email,
+			user.Comment, salt, user.HasAdminRole, now, now).QueryRow(&userID)
+		if err != nil {
+			return 0, err
+		}
+		return userID, nil
+	} else {
+		user.CreationTime = now
+		user.UpdateTime = now
+		return o.Insert(&user)
 	}
-	return userID, nil
-
 }
 
 // UserExists returns whether a user exists according username or Email.
