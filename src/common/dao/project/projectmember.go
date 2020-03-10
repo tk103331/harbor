@@ -16,7 +16,6 @@ package project
 
 import (
 	"fmt"
-	"github.com/goharbor/harbor/src/core/config"
 
 	"github.com/goharbor/harbor/src/common/dao"
 	"github.com/goharbor/harbor/src/common/models"

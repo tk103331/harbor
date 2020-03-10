@@ -15,7 +15,6 @@
 package dao
 
 import (
-	"github.com/goharbor/harbor/src/core/config"
 	"time"
 
 	"github.com/astaxie/beego/orm"
